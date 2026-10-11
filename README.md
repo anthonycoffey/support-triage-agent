@@ -45,7 +45,7 @@ npm run eval:baseline -- evals/runs/<run>       # promote to the committed basel
 Production and evals share one code path. The only thing the harness swaps is the `ModelClient`.
 
 ```mermaid
-flowchart LR
+flowchart TD
     T["Ticket"] --> TR["triage()"]
     TR --> BR["buildRequest()<br/>prompt · tools · effort · caching"]
     BR --> MC{"ModelClient"}
@@ -95,7 +95,7 @@ flowchart TD
 The skills and hooks enforce this loop for coding agents. A human can follow the same steps.
 
 ```mermaid
-flowchart LR
+flowchart TD
     S["1 · Spec<br/>new-spec skill"] --> C["2 · Eval cases first<br/>add-eval-case skill"]
     C --> X["3 · Change agent<br/>prompt · tools · schema"]
     X --> O["4 · npm run check<br/>offline, free"]
