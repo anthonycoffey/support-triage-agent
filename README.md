@@ -42,15 +42,68 @@ npm run eval:baseline -- evals/runs/<run>       # promote to the committed basel
 
 ## How the pieces fit
 
+Production and evals share one code path. The only thing the harness swaps is the `ModelClient`.
+
+```mermaid
+flowchart LR
+    T["Ticket"] --> TR["triage()"]
+    TR --> BR["buildRequest()<br/>prompt · tools · effort · caching"]
+    BR --> MC{"ModelClient"}
+    MC -->|live| CL["Claude Opus 5.5"]
+    MC -->|self-test| SC["Scripted clients<br/>oracle · null · constant"]
+    CL --> TOOLS
+    SC --> TOOLS
+    subgraph TOOLS ["Tools (pure, over fixtures)"]
+        direction TB
+        GC["get_customer"]
+        SK["search_kb"]
+        ST["submit_triage<br/>strict schema from zod"]
+    end
+    ST --> D["TriageDecision"]
+    D --> G["Graders"]
+    EC["Eval case<br/>gold labels"] --> G
+    G --> R["Report<br/>CIs · outcomes · cost"]
+    R --> GATE{"Release gate"}
+    BL["Committed baseline"] -.-> GATE
+    GATE -->|pass| SHIP["Merge"]
+    GATE -->|fail| FIX["investigate-regression skill"]
 ```
-ticket ──► triage() ──► buildRequest() ──► ModelClient ──► Claude (live) | oracle / null / constant (self-test)
-               │                                │
-               ├─ get_customer, search_kb       └─ same code path in production and evals
-               └─ submit_triage (strict schema, generated from zod)
-                          │
-eval case ─────────────► graders (category, priority, escalation, kb_recall, kb_grounded, policy_clean)
-                          │
-                    report (CIs, outcomes, cost) ──► gate (answer rate, zero violations, noise-aware vs baseline)
+
+### Every attempt gets exactly one outcome
+
+Only decisions are graded. Non-answers and infra errors are counted separately, so a run that crashes on every ticket can never look like a cautious one.
+
+```mermaid
+flowchart TD
+    A["Attempt: case × rep"] --> Q{"How did it end?"}
+    Q -->|submit_triage valid| DEC["decision"]
+    Q -->|end_turn, no submit| ND["no_decision"]
+    Q -->|stop_reason: refusal| REF["refusal"]
+    Q -->|stop_reason: max_tokens| TRU["truncated"]
+    Q -->|too many steps| SL["step_limit"]
+    Q -->|timeout · API error · harness bug| ERR["errors.jsonl<br/>never scored"]
+    DEC --> GR["Atomic graders<br/>category · priority · escalation<br/>kb_recall · kb_grounded · policy_clean"]
+    ND & REF & TRU & SL --> AR["Answer rate<br/>gated at ≥ 95%"]
+    DEC --> AR
+    GR --> PV{"Any policy violation?"}
+    PV -->|yes| FAIL["Run fails"]
+    PV -->|no| CI["Rates with 95% CIs"]
+```
+
+### How a change gets made
+
+The skills and hooks enforce this loop for coding agents. A human can follow the same steps.
+
+```mermaid
+flowchart LR
+    S["1 · Spec<br/>new-spec skill"] --> C["2 · Eval cases first<br/>add-eval-case skill"]
+    C --> X["3 · Change agent<br/>prompt · tools · schema"]
+    X --> O["4 · npm run check<br/>offline, free"]
+    O --> L["5 · Live run, reps ≥ 3<br/>run-evals skill · asks before spending"]
+    L --> P["6 · PR with eval diff"]
+    H1(["PreToolUse hook<br/>blocks gold-label edits"]) -.-> C
+    H2(["PostToolUse hook<br/>validator + typecheck"]) -.-> X
+    AU(["eval-case-auditor<br/>subagent"]) -.-> C
 ```
 
 Design decisions worth reading:
