@@ -85,4 +85,11 @@ describe("request shape", () => {
     expect(Array.isArray(req.system) && req.system[0]?.cache_control).toEqual({ type: "ephemeral" });
     expect(req.tools?.every((t) => "strict" in t && t.strict)).toBe(true);
   });
+
+  it("only sends refusal fallbacks to models that accept them", () => {
+    expect(buildRequest(DEFAULT_CONFIG, []).fallbacks).toBe("default");
+    const haiku = buildRequest({ ...DEFAULT_CONFIG, model: "claude-haiku-5-5" }, []);
+    expect(haiku.fallbacks).toBeUndefined();
+    expect(haiku.betas).toBeUndefined();
+  });
 });

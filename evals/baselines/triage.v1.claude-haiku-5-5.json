@@ -1,0 +1,127 @@
+{
+  "meta": {
+    "label": "live-claude-haiku-5-5",
+    "client": "live",
+    "model": "claude-haiku-5-5",
+    "effort": "medium",
+    "prompt_version": "1.0.0",
+    "dataset": "evals/datasets/triage.v1.jsonl",
+    "cases": 24,
+    "reps": 3,
+    "started_at": "2026-10-11T17:11:31.509Z"
+  },
+  "attempts": 72,
+  "errors": {},
+  "outcomes": {
+    "decision": 72
+  },
+  "answer_rate": {
+    "passes": 72,
+    "n": 72,
+    "rate": 1,
+    "lo": 0.9493470601886036,
+    "hi": 1
+  },
+  "metrics": {
+    "category": {
+      "passes": 70,
+      "n": 72,
+      "rate": 0.9722222222222222,
+      "lo": 0.9042564183109327,
+      "hi": 0.9923491385338594
+    },
+    "priority_acceptable": {
+      "passes": 72,
+      "n": 72,
+      "rate": 1,
+      "lo": 0.9493470601886036,
+      "hi": 1
+    },
+    "priority_preferred": {
+      "passes": 62,
+      "n": 72,
+      "rate": 0.8611111111111112,
+      "lo": 0.7628660215842661,
+      "hi": 0.922773521885281
+    },
+    "escalation": {
+      "passes": 72,
+      "n": 72,
+      "rate": 1,
+      "lo": 0.9493470601886036,
+      "hi": 1
+    },
+    "kb_recall": {
+      "passes": 60,
+      "n": 63,
+      "rate": 0.9523809523809523,
+      "lo": 0.8690882244316417,
+      "hi": 0.9836741271577875
+    },
+    "kb_grounded": {
+      "passes": 72,
+      "n": 72,
+      "rate": 1,
+      "lo": 0.9493470601886036,
+      "hi": 1
+    },
+    "policy_clean": {
+      "passes": 72,
+      "n": 72,
+      "rate": 1,
+      "lo": 0.9493470601886036,
+      "hi": 1
+    }
+  },
+  "judge": null,
+  "escalation": {
+    "precision": 1,
+    "recall": 1,
+    "tp": 24,
+    "fp": 0,
+    "fn": 0
+  },
+  "by_tag": {
+    "account_access": {
+      "n": 9,
+      "category": 1,
+      "escalation": 1
+    },
+    "billing": {
+      "n": 15,
+      "category": 1,
+      "escalation": 1
+    },
+    "bug": {
+      "n": 15,
+      "category": 0.8666666666666667,
+      "escalation": 1
+    },
+    "data_request": {
+      "n": 6,
+      "category": 1,
+      "escalation": 1
+    },
+    "feature_request": {
+      "n": 9,
+      "category": 1,
+      "escalation": 1
+    },
+    "other": {
+      "n": 9,
+      "category": 1,
+      "escalation": 1
+    },
+    "security": {
+      "n": 9,
+      "category": 1,
+      "escalation": 1
+    }
+  },
+  "majority_category_baseline": 0.20833333333333334,
+  "policy_violations": [],
+  "fallback_rows": 0,
+  "cost_usd": 0.02758069999999999,
+  "judge_cost_usd": null,
+  "mean_model_latency_ms": 4734
+}

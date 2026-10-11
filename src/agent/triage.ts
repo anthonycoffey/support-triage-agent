@@ -52,8 +52,15 @@ export function formatTicket(t: Ticket): string {
   return `<ticket>\nFrom: ${t.from}\nSubject: ${t.subject}\n\n${t.body}\n</ticket>`;
 }
 
+/** Models that accept server-side refusal fallbacks. Others (e.g. Haiku 5.5) reject the parameter. */
+const FALLBACK_MODELS = new Set(["claude-fable-5-1", "claude-opus-5-5", "claude-opus-5", "claude-sonnet-5-5"]);
+
 /** Build the request exactly as production sends it. Evals call this same function. */
 export function buildRequest(config: AgentConfig, messages: Anthropic.Beta.BetaMessageParam[]): CreateParams {
+  const fallback: Partial<CreateParams> = FALLBACK_MODELS.has(config.model)
+    ? // Route policy declines to a fallback model instead of failing the ticket.
+      { betas: ["server-side-fallback-2026-07-01"], fallbacks: "default" }
+    : {};
   return {
     model: config.model,
     max_tokens: 16000,
@@ -62,9 +69,7 @@ export function buildRequest(config: AgentConfig, messages: Anthropic.Beta.BetaM
     // Forced tool_choice is rejected on current models; the prompt + strict schema steer instead.
     tool_choice: { type: "auto" },
     output_config: { effort: config.effort },
-    // Route policy declines to a fallback model instead of failing the ticket.
-    betas: ["server-side-fallback-2026-07-01"],
-    fallbacks: "default",
+    ...fallback,
     messages,
   };
 }
