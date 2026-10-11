@@ -1,9 +1,8 @@
 // npm run eval -- --client live --reps 3 --yes
 // npm run eval -- --client oracle            (no network)
-import Anthropic from "@anthropic-ai/sdk";
 import { existsSync, readFileSync } from "node:fs";
 import { parseArgs } from "node:util";
-import { AnthropicModelClient, type ModelClient } from "../src/agent/client.js";
+import { AnthropicModelClient, createAnthropic, type ModelClient } from "../src/agent/client.js";
 import { type AgentConfig, DEFAULT_CONFIG } from "../src/agent/triage.js";
 import { DEFAULT_DATASET, loadCases } from "./case.js";
 import { scriptedClient } from "./clients.js";
@@ -56,7 +55,7 @@ const { summary, outDir } = await execute({
   reps,
   concurrency: Number(a.concurrency),
   timeoutMs: Number(a["timeout-ms"]),
-  judge: a.judge ? new Anthropic({ maxRetries: 4 }) : undefined,
+  judge: a.judge ? createAnthropic() : undefined,
 });
 
 console.log(readFileSync(`${outDir}/report.md`, "utf8"));
@@ -68,4 +67,4 @@ const result = gate(summary, baseline);
 for (const n of result.notes) console.log(`note: ${n}`);
 for (const f of result.failures) console.log(`GATE FAIL: ${f}`);
 console.log(result.pass ? "Gate: PASS" : "Gate: FAIL");
-process.exit(result.pass ? 0 : 1);
+process.exitCode = result.pass ? 0 : 1;

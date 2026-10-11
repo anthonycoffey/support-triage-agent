@@ -13,11 +13,23 @@ export interface ModelClient {
   create(params: CreateParams, signal?: AbortSignal): Promise<Message>;
 }
 
+/**
+ * Credentials resolve from the environment (ANTHROPIC_API_KEY, or an `ant auth login` profile).
+ * Org-level API keys that aren't scoped to a workspace must name one: set ANTHROPIC_WORKSPACE_ID.
+ */
+export function createAnthropic(): Anthropic {
+  const workspace = process.env.ANTHROPIC_WORKSPACE_ID;
+  return new Anthropic({
+    maxRetries: 4,
+    defaultHeaders: workspace ? { "anthropic-workspace-id": workspace } : undefined,
+  });
+}
+
 export class AnthropicModelClient implements ModelClient {
   readonly name = "live";
   private readonly client: Anthropic;
 
-  constructor(client = new Anthropic({ maxRetries: 4 })) {
+  constructor(client = createAnthropic()) {
     this.client = client;
   }
 

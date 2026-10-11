@@ -31,7 +31,7 @@ ok   always-escalate policy is not rewarded (33.3%)
 Harness self-test passed.
 ```
 
-With an API key (`ANTHROPIC_API_KEY`, or `ant auth login`):
+With an API key (`ANTHROPIC_API_KEY`, or `ant auth login`). If your key isn't scoped to a workspace, also set `ANTHROPIC_WORKSPACE_ID`. In PowerShell, quote the separator (`npm run eval '--' --client live`), because PowerShell drops a bare `--`.
 
 ```bash
 npm run triage -- --from maria@brightpaws.example --subject "Locked out" --body "Too many password attempts, now locked."
