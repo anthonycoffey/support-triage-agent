@@ -13,8 +13,13 @@ import type { EvalCase } from "./case.js";
  *              or the case set has a shortcut a trivial policy can exploit.
  */
 
-export const ORACLE_REPLY =
-  "Thanks for getting in touch. A member of our support team is reviewing this and will follow up shortly with next steps.";
+export const ORACLE_REPLIES = {
+  en: "Thanks for getting in touch. A member of our support team is reviewing this and will follow up shortly with next steps.",
+  es: "Hola, gracias por escribirnos. Un miembro de nuestro equipo está revisando su caso y le responderá pronto con los próximos pasos.",
+  pt: "Olá, obrigado pelo contato. Um membro da nossa equipe está analisando o seu caso e em breve retornará com os próximos passos.",
+} as const;
+
+export const ORACLE_REPLY = ORACLE_REPLIES.en;
 
 export class OracleClient implements ModelClient {
   readonly name = "oracle";
@@ -25,7 +30,7 @@ export class OracleClient implements ModelClient {
     if (params.messages.length === 1) {
       return message(params.model, "tool_use", [
         toolUse("get_customer", { email: c.ticket.from }),
-        toolUse("search_kb", { query: `${c.ticket.subject} ${c.ticket.body}` }),
+        toolUse("search_kb", { query: c.retrieval_query ?? `${c.ticket.subject} ${c.ticket.body}` }),
       ]);
     }
     const decision: TriageDecision = {
@@ -33,7 +38,7 @@ export class OracleClient implements ModelClient {
       priority: c.expected.priority[0]!,
       escalate: c.expected.escalate,
       kb_article_ids: c.expected.kb_any_of ?? [],
-      reply_draft: ORACLE_REPLY,
+      reply_draft: ORACLE_REPLIES[c.expected.reply_language ?? "en"],
     };
     return message(params.model, "tool_use", [toolUse(SUBMIT_TOOL, decision)]);
   }

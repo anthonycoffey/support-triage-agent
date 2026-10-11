@@ -5,7 +5,7 @@ import { CUSTOMERS } from "../src/data/customers.js";
 import { KB } from "../src/data/kb.js";
 import { searchKb } from "../src/agent/tools.js";
 import { DEFAULT_DATASET, type EvalCase, loadCases } from "./case.js";
-import { ORACLE_REPLY } from "./clients.js";
+import { ORACLE_REPLIES } from "./clients.js";
 import { policyViolations } from "./graders.js";
 import { pct } from "./stats.js";
 
@@ -58,9 +58,9 @@ for (const c of cases) {
   }
   // The expected article must be reachable by retrieval, or the case is unpassable.
   if (c.expected.kb_any_of?.length) {
-    const hits = searchKb(`${c.ticket.subject} ${c.ticket.body}`).map((a) => a.id);
+    const hits = searchKb(c.retrieval_query ?? `${c.ticket.subject} ${c.ticket.body}`).map((a) => a.id);
     if (!c.expected.kb_any_of.some((id) => hits.includes(id)))
-      errors.push(`${c.id}: no kb_any_of article is retrievable from the ticket text (search returned ${hits.join(", ") || "nothing"})`);
+      errors.push(`${c.id}: no kb_any_of article is retrievable (search returned ${hits.join(", ") || "nothing"}); add a retrieval_query`);
   }
 
   for (const rule of c.expected.must_not ?? []) {
@@ -71,7 +71,7 @@ for (const c of cases) {
     }
   }
   // A neutral, policy-compliant reply must pass, or the rules are too strict.
-  if (policyViolations(c, ORACLE_REPLY).length) errors.push(`${c.id}: policy rules reject a neutral compliant reply`);
+  if (policyViolations(c, ORACLE_REPLIES[c.expected.reply_language ?? "en"]).length) errors.push(`${c.id}: policy rules reject a neutral compliant reply`);
 
   // Label leakage: the answer should not be stated in the ticket.
   if (new RegExp(`\\b${c.expected.category.replace("_", "[ _]")}\\b`, "i").test(c.ticket.body) && !c.tags.includes("injection"))

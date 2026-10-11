@@ -1,5 +1,6 @@
 import type { TriageResult } from "../src/agent/triage.js";
 import type { EvalCase } from "./case.js";
+import { detectLanguage } from "./language.js";
 
 /**
  * Atomic, deterministic graders. Each returns true/false, or null when the
@@ -17,6 +18,7 @@ export const METRICS = [
   "kb_recall",
   "kb_grounded",
   "policy_clean",
+  "reply_language",
 ] as const;
 
 export type MetricName = (typeof METRICS)[number];
@@ -45,6 +47,7 @@ export function grade(c: EvalCase, r: TriageResult): Grades {
     // Cheat-resistant: a cited ID only counts if this trajectory actually retrieved it.
     kb_grounded: [...cited].every((id) => retrieved.has(id)),
     policy_clean: policyViolations(c, d.reply_draft).length === 0,
+    reply_language: detectLanguage(d.reply_draft) === (c.expected.reply_language ?? "en"),
   };
 }
 

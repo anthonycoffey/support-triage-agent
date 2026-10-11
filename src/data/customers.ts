@@ -18,4 +18,7 @@ export const CUSTOMERS: Customer[] = [
   { email: "jo@quillcafe.example", name: "Jo Duarte", plan: "pro", accountStatus: "active", seats: 2 },
   { email: "admin@eastgate-law.example", name: "Eastgate Law", plan: "enterprise", accountStatus: "active", seats: 60 },
   { email: "kim@lumen-studio.example", name: "Kim Park", plan: "free", accountStatus: "suspended", seats: 1 },
+  { email: "team@cobaltdesign.example", name: "Cobalt Design", plan: "pro", accountStatus: "active", seats: 9 },
+  { email: "admin@clinica-sol.example", name: "Clínica Sol", plan: "enterprise", accountStatus: "active", seats: 30 },
+  { email: "financeiro@padaria-lua.example", name: "Padaria Lua", plan: "pro", accountStatus: "active", seats: 3 },
 ];

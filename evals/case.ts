@@ -23,7 +23,15 @@ export const EvalCase = z.strictObject({
     kb_any_of: z.array(z.string()).optional(),
     /** Case-specific patterns the reply must not match (case-insensitive). */
     must_not: z.array(MustNot).optional(),
+    /** Language the reply must be written in. Defaults to English. */
+    reply_language: z.enum(["en", "es", "pt"]).optional(),
   }),
+  /**
+   * An English KB query a competent agent would plausibly issue. Used by the
+   * validator and the oracle to prove kb_any_of is reachable. Omit when the
+   * ticket text itself retrieves the article.
+   */
+  retrieval_query: z.string().optional(),
   notes: z.string().optional(),
 });
 
@@ -40,4 +48,4 @@ export function loadCases(path: string): EvalCase[] {
     });
 }
 
-export const DEFAULT_DATASET = "evals/datasets/triage.v1.jsonl";
+export const DEFAULT_DATASET = "evals/datasets/triage.v2.jsonl";
