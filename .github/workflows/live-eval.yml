@@ -1,0 +1,39 @@
+name: live-eval
+
+# Manual only: live runs cost money. Requires the ANTHROPIC_API_KEY repo secret.
+on:
+  workflow_dispatch:
+    inputs:
+      reps:
+        description: Reps per case
+        default: "3"
+      judge:
+        description: Also run the LLM judge (advisory)
+        type: boolean
+        default: false
+
+jobs:
+  live:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - run: npm run check
+      - name: Live eval
+        env:
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+        run: |
+          BASELINE=evals/baselines/triage.v1.claude-opus-5-5.json
+          npm run eval -- --client live --reps ${{ inputs.reps }} --yes \
+            ${{ inputs.judge && '--judge' || '' }} \
+            $( [ -f "$BASELINE" ] && echo "--baseline $BASELINE" )
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: eval-run
+          path: evals/runs/

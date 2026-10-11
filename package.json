@@ -1,0 +1,32 @@
+{
+  "name": "support-triage-agent",
+  "version": "0.1.0",
+  "private": true,
+  "description": "A Claude-powered support-ticket triage agent, built spec-first and gated by an eval harness.",
+  "type": "module",
+  "engines": {
+    "node": ">=22"
+  },
+  "scripts": {
+    "triage": "tsx src/cli.ts",
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "eval": "tsx evals/run.ts",
+    "eval:validate": "tsx evals/validate.ts",
+    "eval:selftest": "tsx evals/selftest.ts",
+    "eval:diff": "tsx evals/diff.ts",
+    "eval:baseline": "tsx evals/baseline.ts",
+    "check": "npm run typecheck && npm test && npm run eval:validate && npm run eval:selftest"
+  },
+  "dependencies": {
+    "@anthropic-ai/sdk": "^0.133.0",
+    "zod": "^4.0.0"
+  },
+  "devDependencies": {
+    "@types/node": "^22.0.0",
+    "tsx": "^4.20.0",
+    "typescript": "^5.9.0",
+    "vitest": "^3.2.0"
+  }
+}
